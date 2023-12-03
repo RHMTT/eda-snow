@@ -5,7 +5,6 @@
   gather_facts: false
 
   tasks:
-
     - name: Correct Interfaces
       arista.eos.eos_interfaces:
         config:

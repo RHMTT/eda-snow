@@ -1,5 +1,5 @@
 ---
-- hosts: ceos2
+- hosts: ceos3
   gather_facts: false
   connection: httpapi
   vars:

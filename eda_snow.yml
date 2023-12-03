@@ -35,6 +35,7 @@
         name: snow_incident.yml
 
 - name: Port State Event from Arista
+
   hosts: all
   sources:
    - ansible.eda.kafka:

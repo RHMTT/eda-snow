@@ -1,0 +1,40 @@
+---
+- name: Creating Snow tickets
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  collections:
+    - servicenow.itsm
+
+  vars:
+   SN_HOST: "{{ lookup('env', 'SN_HOST') }}"
+   SN_USERNAME: "{{ lookup('env', 'SN_USERNAME') }}"
+   SN_PASSWORD: "{{ lookup('env', 'SN_PASSWORD') }}"
+
+  tasks:
+
+    - name: Create incident
+      servicenow.itsm.incident:
+        state: new
+        caller: "{{ lookup('env', 'SN_USERNAME') }}"
+        short_description: "Chat request logged from: {{ ansible_eda.event.channel_name }}, Trigger: {{ ansible_eda.event.trigger }}"
+        description: "Network configurations have been backed up and uploaded"
+        impact: high
+        urgency: high
+      delegate_to: localhost
+      register: snow_output
+      run_once: true
+
+    - name: Send SNOW incident ticket back to mattermost
+      community.general.mattermost:
+       url: http://podman-host:8065
+       api_key: 4ddjoyxrji8imntthqmpdbbu8w
+       attachments:
+         - text: "Backup Completed"
+           color: '#ff00dd'
+           title: Ansible Completed your request
+           fields:
+            - title: ServiceNOW Incident has been Created
+              value: "Incident Number is {{ snow_output.record.number }}"
+              short: true
+      delegate_to: localhost
