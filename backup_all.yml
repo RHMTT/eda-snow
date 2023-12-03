@@ -1,0 +1,27 @@
+---
+- hosts: leaf
+  gather_facts: false
+  connection: httpapi
+  vars:
+    ansible_httpapi_port: 443
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_validate_certs: false
+  tasks:
+
+  - name: configurable backup path
+    arista.eos.eos_config:
+      backup: yes
+      backup_options:
+        filename: "{{ inventory_hostname }}.cfg"
+
+  - name: archive configuration files
+    community.general.archive:
+      path:  /tmp/backups
+      dest:  /tmp/backups.tgz
+
+  - set_fact:
+      cacheable: true
+      backup_done: "complete"
+      channel_name: "{{ ansible_eda.event.payload.channel_name }}"
+      trigger: "{{ ansible_eda.event.payload.trigger_word }}"
+    when: "'snow' in ansible_eda.event.payload.text"
